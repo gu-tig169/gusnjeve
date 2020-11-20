@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import './secondView.dart';
+import './model.dart';
+import './todoList.dart';
 
 void main() {
-  runApp(MyApp());
+  var state = MyState();
+  runApp((ChangeNotifierProvider(
+    create: (context) => state,
+    child: MyApp()
+  )));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,119 +28,56 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainView extends StatelessWidget {
+class MainView extends StatefulWidget {
   @override
+  State<StatefulWidget> createState() {
+    return MainViewState();
+  }
+}
+
+class MainViewState extends State<MainView> {
+  //deklarerar val av filtrering av listan
+  final List<String> choices = ['All', 'Done', 'Undone'];
+  String filterValue = 'All';
+
   Widget build(BuildContext context) {
     return Scaffold(
-      //Skapar en appbar med titel och en menyknapp
+      //Skapar en appbar med titel och en menyknapp med filtrering
       appBar: AppBar(
         centerTitle: true,
         title: Text('TIG169 TODO LIST'),
         actions: [
           PopupMenuButton<String>(
-            onSelected: (val) {},
+            onSelected: (String value) {
+              setState(() {
+                filterValue = value; //listan visar alla tasks som standard
+                print(filterValue);
+              });
+            },
             itemBuilder: (BuildContext context) {
-              //Under menyknappen kan användaren filtrera mellan all, done och undone (endast visuellt för tillfället)
-              return {'All', 'Done', 'Undone'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
+              return choices.map((choices) =>
+                PopupMenuItem(
+                  value: choices,
+                  child: Text(choices))
+              ).toList();
             }
           )
         ],
-        ),
+      ),
 
       //Skapar en add knapp för att lägga till nya to do's, knappen tar användaren vidare till nästa vy
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
+        onPressed: () { Navigator.push(context,
           MaterialPageRoute(builder: (context) => SecondView()));
         },
         child: Icon(Icons.add),
       ),
 
-      //Kolumner av checkboxes och användarens to do's (endast visuellt för tillfället)
-      body: Column(
-        children: [
-          Container(height: 20),
-          _checkboxRow(),
-          Divider(color: Colors.grey),
-          _checkboxRow(),
-          Divider(color: Colors.grey),
-          _checkboxRow(),
-          Divider(color: Colors.grey),
-        ],
-      ),
-    );
-  }
-
-  //Definierar vad en _checkboxRow innehåller
-  //En checkbox, en text och en deleteknapp för att ta bort en to do (endast visuellt för tillfället)
-  Widget _checkboxRow() {
-    return Row(
-      children: [
-        Checkbox(
-          value: false,
-          onChanged: (val) {}
-        ),
-        Text(
-          'To do',
-           style: TextStyle(fontSize: 20),
-        ),
-        Spacer(),
-        RawMaterialButton(
-          onPressed: () {},
-          child: Icon(
-            Icons.clear,
-            size: 20.0,
-          ),
-          shape: CircleBorder(),
-        )
-    ],
-    );
-  }
-}
-
-//Skapar en klass för nästa vy, SecondView
-class SecondView extends StatelessWidget {
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('TIG169 TODO LIST')
-      ),
-
-      //SecondView innehåller en text field där användaren kan lägga in en ny to do (endast visuellt för tillfället)
-      body: Column(
-        children: [
-          Container (
-            margin: EdgeInsets.only (left: 20, right: 20, top: 70),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'What do you need to do?')
-            ),
-          ),
-          Container(height: 25),
-          //Skapar en knapp med _addRow för att lägga till användarens input (endast visuellt för tillfället)
-          FlatButton(
-            onPressed: () {}, 
-            child: _addRow(),
-          )
-        ],
+      //Hemvyn består av en lista som dynamiskt byggs upp i klassen TodoList i todoList.dart
+      body: Consumer <MyState>(
+        builder:(context,state,child) =>
+        TodoList(state.filteredList(filterValue))
       )
     );
   }
-}
-
-//Definierar vad _addRow innehåller, en add ikon och text
-Widget _addRow() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.add),
-      Text('Add')
-    ],
-  );
 }
