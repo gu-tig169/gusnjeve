@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import './model.dart';
 
-//Skapar en klass för nästa vy, SecondView
 class SecondView extends StatelessWidget {
   final textEditingController = TextEditingController();
 
@@ -15,7 +13,6 @@ class SecondView extends StatelessWidget {
         title: Text('TIG169 TODO LIST')
       ),
 
-      //SecondView innehåller en text field och en add knapp
       body: Center(
         child: Column(
           children: [
@@ -30,8 +27,7 @@ class SecondView extends StatelessWidget {
     );
   }
 
-//Textfield låter användaren fylla i en ny uppgift som ska göras
-Widget _textField() {
+Widget _textField() { //ett textfält där användaren kan fylla i en ny uppgift som ska göras
   return Container(
     margin: EdgeInsets.only(
       left: 20,
@@ -42,26 +38,19 @@ Widget _textField() {
       decoration: InputDecoration(
         hintText: 'What do you need to do?',
       ),
-      controller: textEditingController //Uppdaterar värdet av textfield och notifierar listeners när användaren fyller i en ny uppgift
+      controller: textEditingController
     ),
   );
 }
 
-//addrow låter användaren lägga till nya uppgifter
-Widget _addRow(BuildContext context) {   
+Widget _addRow(BuildContext context) { //en knapp som låter användaren lägga till en to do i listan på hemvyn
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       FlatButton(
         onPressed: () {
-          Provider.of<MyState>(
-            context,
-            listen: false).addTask( //anropar addTask när användaren trycker på add knappen
-              Task(
-                task: textEditingController.text
-              )
-            );
-          Navigator.popAndPushNamed(context, "/"); //går tillbaka till hemvyn när användaren trycker på add knappen
+          Navigator.pop( //användaren skickas tillbaka till hemvyn när knappen trycks
+            context, Task(title: textEditingController.text, done: false));
         },
         child: Text('Add +')
       )

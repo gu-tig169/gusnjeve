@@ -7,6 +7,8 @@ import './todoList.dart';
 
 void main() {
   var state = MyState();
+  state.getList();
+
   runApp((ChangeNotifierProvider(
     create: (context) => state,
     child: MyApp()
@@ -17,13 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //Sätter appens tema till en blågrå färgskala och anpassa appen visuellt till plattformen den används på
-      theme: ThemeData(
+      theme: ThemeData( //bestäm appens tema
         primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //Sätter MainView som appens hemskärm
-      home: MainView(),
+      home: MainView(), //bestäm appens hemvy
     );
   }
 }
@@ -42,15 +42,14 @@ class MainViewState extends State<MainView> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      //Skapar en appbar med titel och en menyknapp med filtrering
       appBar: AppBar(
         centerTitle: true,
         title: Text('TIG169 TODO LIST'),
         actions: [
-          PopupMenuButton<String>(
+          PopupMenuButton<String>( //knapp för att filtrera tasks enligt all, done och undone
             onSelected: (String value) {
               setState(() {
-                filterValue = value; //listan visar alla tasks som standard
+                filterValue = value;
                 print(filterValue);
               });
             },
@@ -65,16 +64,18 @@ class MainViewState extends State<MainView> {
         ],
       ),
 
-      //Skapar en add knapp för att lägga till nya to do's, knappen tar användaren vidare till nästa vy
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { Navigator.push(context,
+      floatingActionButton: FloatingActionButton( //knapp för att ta användaren vidare till nästa vy, där nya tasks kan läggas till
+        onPressed: () async {
+          var newTodo = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => SecondView()));
+          if (newTodo != null) {
+            Provider.of<MyState>(context, listen: false).addTask(newTodo);
+          }
         },
         child: Icon(Icons.add),
       ),
 
-      //Hemvyn består av en lista som dynamiskt byggs upp i klassen TodoList i todoList.dart
-      body: Consumer <MyState>(
+      body: Consumer <MyState>( //hemvyn består av en lista av to do's som dynamiskt byggs upp av användaren
         builder:(context,state,child) =>
         TodoList(state.filteredList(filterValue))
       )
