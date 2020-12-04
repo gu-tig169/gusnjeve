@@ -16,29 +16,30 @@ class TodoListState extends State<TodoList> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: widget.list.length,
-      itemBuilder:(context, index) => task(widget.list[index]));
+      itemBuilder:(context, index) => todoItem(widget.list[index]));
   }
 
-//bygger upp en lista där varje element består av en checkbox, en text(uppgift) och en radera knapp
-Widget task(Task item) {
+Widget todoItem(Task task) { //varje element i listan på hemvyn består av en checkbox, en text och en radera knapp
   return ListTile(
     leading: Checkbox(
-        value: item.done,
-        onChanged: (bool value) {
-          setState(() { //uppdaterar checkboxens värde när användaren väljer att trycka på den
-            item.done = value;  }
-          ); 
+        value: task.done,
+        onChanged: (change) {
+          setState(() {
+            task.done = change;
+            Provider.of<MyState>(context,
+            listen: false)
+            .finishTask(task);
+          }); 
         },
       ),
-    title: Text( //texten som användaren har skrivit in i textfield läggs in i listan
-      item.task,
+    title: Text(
+      task.title,
       style: TextStyle(fontSize: 20)
     ),
     trailing: RawMaterialButton(
       onPressed: () {
-        Provider.of<MyState>(context,
-          listen: false
-        ).removeTask(item); //anropar removeTask när användaren trycker på radera knappen
+        var state = Provider.of<MyState>(context, listen: false);
+        state.removeTask(task);
       },
       child: Icon(
         Icons.clear,
